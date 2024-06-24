@@ -91,6 +91,7 @@ func (s *Service) GetUserBanner(writer http.ResponseWriter, request *http.Reques
 		if err = json.NewEncoder(writer).Encode(banner); err != nil {
 			s.log.Log.Error("searilizing banners is failed: ", err)
 		}
+		return
 	}
 
 	// Получим баннер из кэша

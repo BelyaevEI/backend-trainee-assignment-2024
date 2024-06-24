@@ -66,7 +66,7 @@ func (repo Repository) GetQueryParam(querys url.Values) models.Query {
 	var d models.Query
 
 	if val, ok := querys["feature_id"]; ok {
-		d.TagID, _ = strconv.Atoi(val[0])
+		d.FeatureID, _ = strconv.Atoi(val[0])
 	}
 
 	if val, ok := querys["tag_id"]; ok {
@@ -86,7 +86,6 @@ func (repo Repository) GetQueryParam(querys url.Values) models.Query {
 	}
 
 	return d
-
 }
 
 func (repo Repository) GetBanners(ctx context.Context, queryParam models.Query) ([]models.ResponseBody, error) {

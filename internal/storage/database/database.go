@@ -60,7 +60,7 @@ func Connect(dsn string) (DBaser, error) {
 	// Create table for tag and feature
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS tag_feature
 					(feature_id bigint NOT NULL,
-					tag_id int NOT NULL,
+					tag_id bigint NOT NULL,
 					banner_id bigint NOT NULL,
 					PRIMARY KEY (feature_id, tag_id))`)
 	if err != nil {
@@ -298,9 +298,9 @@ func (d dbase) GetBanners(ctx context.Context, queryParam models.Query) ([]model
 
 	// 1. Выборка из tag_feature
 	rows, err := tx.QueryContext(ctx, `SELECT DISTINCT actual_banner.banner_id,
-										actual_banner.title
-										actual_banner.text
-										actual_banner.url
+										actual_banner.title,
+										actual_banner.text,
+										actual_banner.url,
 										actual_banner.is_active
 										FROM actual_banner
 										INNER JOIN tag_feature
@@ -339,8 +339,8 @@ func (d dbase) GetBanners(ctx context.Context, queryParam models.Query) ([]model
 func (d dbase) GetBanner(ctx context.Context, featureID, tagID int) (models.BannerContent, error) {
 	var banner models.BannerContent
 
-	row := d.db.QueryRowContext(ctx, `SELECT actual_banner.title
-								actual_banner.text
+	row := d.db.QueryRowContext(ctx, `SELECT actual_banner.title,
+								actual_banner.text,
 								actual_banner.url
 								FROM actual_banner
 								INNER JOIN tag_feature
@@ -357,7 +357,7 @@ func (d dbase) GetBanner(ctx context.Context, featureID, tagID int) (models.Bann
 		}
 		return models.BannerContent{}, err
 	}
-	return models.BannerContent{}, nil
+	return banner, nil
 }
 
 // Просто удаление из БД баннера
@@ -405,7 +405,7 @@ func (d dbase) GetHistoryBanner(ctx context.Context, bannerID int) ([]models.Ban
 
 	banners := make([]models.BannerHistory, 0)
 
-	rows, err := d.db.QueryContext(ctx, `SELECT banner_id, version, title text, url
+	rows, err := d.db.QueryContext(ctx, `SELECT banner_id, version, title, text, url
 											FROM history_banner
 											WHERE banner_id = $1`,
 		bannerID,
